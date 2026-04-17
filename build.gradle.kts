@@ -14,10 +14,20 @@ application {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
 }
 
 dependencies {
+    val exposedVersion = "1.2.0" // Check for the latest version
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+
+    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+
+    implementation("com.h2database:h2:2.4.240")
+    implementation("io.ktor:ktor-server-auth:2.3.7")
+    implementation("io.ktor:ktor-server-auth-jwt:2.3.7")
+    implementation("org.mindrot:jbcrypt:0.4")
     implementation("io.ktor:ktor-server-cors")
     implementation("io.ktor:ktor-server-default-headers")
     implementation("io.ktor:ktor-server-core-jvm")
