@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Вход - Отель</title>
+  <style>
+    :root {
+--bg: #0f172a;
+--card: #1e293b;
+--accent: #fbbf24; /* Золотой акцент */
+--text: #f8fafc;
+--input: #334155;
+}
+
+body {
+background-color: var(--bg);
+color: var(--text);
+font-family: 'Segoe UI', Roboto, sans-serif;
+display: flex;
+justify-content: center;
+align-items: center;
+height: 100vh;
+margin: 0;
+}
+
+.card {
+background: var(--card);
+padding: 2.5rem;
+border-radius: 1.5rem;
+box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+width: 100%;
+max-width: 400px;
+border: 1px solid rgba(255, 255, 255, 0.1);
+text-align: center;
+}
+
+h2 { margin-bottom: 1.5rem; font-weight: 700; color: var(--accent); letter-spacing: -0.025em; }
+
+input {
+width: 100%;
+padding: 0.75rem 1rem;
+margin-bottom: 1rem;
+background: var(--input);
+border: 1px solid transparent;
+border-radius: 0.75rem;
+color: white;
+transition: all 0.3s ease;
+box-sizing: border-box;
+}
+
+input:focus {
+outline: none;
+border-color: var(--accent);
+box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
+}
+
+button {
+width: 100%;
+padding: 0.75rem;
+background: var(--accent);
+color: var(--bg);
+font-weight: 600;
+border: none;
+border-radius: 0.75rem;
+cursor: pointer;
+transition: transform 0.2s, opacity 0.2s;
+}
+
+button:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.link {
+display: block;
+margin-top: 1.25rem;
+color: #94a3b8;
+text-decoration: none;
+font-size: 0.875rem;
+}
+
+.link:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h2>Вход</h2>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Пароль">
+  <button onclick="auth('login')">Войти</button>
+  <a href="register.html" class="link">Нет аккаунта? Регистрация</a>
+</div>
+<script src="auth.js"></script>
+</body>
+</html>
