@@ -10,6 +10,7 @@ import com.example.models.RoomsTable
 import com.example.service.UserService
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import io.ktor.server.http.content.resources
@@ -19,6 +20,7 @@ import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
@@ -103,47 +105,72 @@ fun Application.configureRouting()
             }
         }
         // 1. Создать бронирование
+        // В configureRouting():
         route("/api/bookings") {
 
-            // СОЗДАНИЕ БРОНИ
-            post("/create") {
-                val userPrincipal = call.principal<JWTPrincipal>()
-                val userId = userPrincipal?.payload?.getClaim("id")?.asLong() ?: return@post call.respond(HttpStatusCode.Unauthorized)
+            // 🔥 Добавляем аутентификацию для этих маршрутов
+            authenticate("auth-jwt") {
 
-                val request = call.receive<BookingRequest>()
+                post("/create") {
+                    val userPrincipal = call.principal<JWTPrincipal>()
+                    val userId = userPrincipal?.payload?.getClaim("userId")?.asLong()
+                        ?: return@post call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Unauthorized"))
 
-                transaction {
-                    BookingsTable.insert {
-                        it[BookingsTable.userId] = userId
-                        it[BookingsTable.roomId] = request.roomId
-                        it[status] = "PENDING"
+                    val request = call.receive<BookingRequest>()
+
+                    // 🔥 Сначала проверяем в transaction и получаем результат
+                    val bookingExists = transaction {
+                        BookingsTable
+                            .selectAll()
+                            .where {
+                                (BookingsTable.userId eq userId) and
+                                        (BookingsTable.roomId eq request.roomId) and
+                                        (BookingsTable.status eq "PENDING")
+                            }
+                            .firstOrNull() != null
                     }
-                }
-                call.respond(HttpStatusCode.Created, mapOf("message" to "Заявка отправлена"))
-            }
 
-            // ПОЛУЧЕНИЕ СПИСКА (Исправляет ошибку типов)
-            get("/my") {
-                val userPrincipal = call.principal<JWTPrincipal>()
-                val userId = userPrincipal?.payload?.getClaim("id")?.asLong() ?: return@get call.respond(HttpStatusCode.Unauthorized)
+                    // 🔥 Потом уже вне transaction делаем respond
+                    if (bookingExists) {
+                        return@post call.respond(
+                            HttpStatusCode.Conflict,
+                            mapOf("error" to "У вас уже есть бронь на этот номер")
+                        )
+                    }
 
-                val myBookings = transaction {
-                    // Соединяем таблицы Bookings и Rooms по roomId
-                    (BookingsTable innerJoin RoomsTable)
-                        .selectAll()
-                        .where(BookingsTable.userId eq userId)
-                        .map {
-                            BookingResponse(
-                                id = it[BookingsTable.id],
-                                roomNumber = it[RoomsTable.number].toString(),
-                                price = it[RoomsTable.price],
-                                status = it[BookingsTable.status],
-                                createdAt = it[BookingsTable.createdAt].toString()
-                            )
+                    // Создаём бронирование
+                    transaction {
+                        BookingsTable.insert {
+                            it[BookingsTable.userId] = userId
+                            it[BookingsTable.roomId] = request.roomId
+                            it[status] = "PENDING"
                         }
+                    }
+
+                    call.respond(HttpStatusCode.Created, mapOf("message" to "Заявка отправлена"))
                 }
-                // Отправляем чистый List<BookingResponse>
-                call.respond(myBookings)
+
+                get("/my") {
+                    val userPrincipal = call.principal<JWTPrincipal>()
+                    val userId = userPrincipal?.payload?.getClaim("userId")?.asLong()
+                        ?: return@get call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Unauthorized"))
+
+                    val myBookings = transaction {
+                        (BookingsTable innerJoin RoomsTable)
+                            .selectAll()
+                            .where(BookingsTable.userId eq userId)
+                            .map {
+                                BookingResponse(
+                                    id = it[BookingsTable.id],
+                                    roomNumber = it[RoomsTable.number].toString(),
+                                    price = it[RoomsTable.price],
+                                    status = it[BookingsTable.status],
+                                    createdAt = it[BookingsTable.createdAt].toString()
+                                )
+                            }
+                    }
+                    call.respond(myBookings)
+                }
             }
         }
     }

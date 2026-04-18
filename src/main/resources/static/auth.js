@@ -1,5 +1,4 @@
 // Функция для проверки: если мы на странице логина/регистрации и есть токен — уходим на главную
-// На главной странице (index.html)
 window.onload = async () => {
     const token = localStorage.getItem('token');
     const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('register');
@@ -24,6 +23,7 @@ window.onload = async () => {
     }
 };
 
+// Функция авторизации/регистрации
 async function auth(type) {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -38,7 +38,7 @@ async function auth(type) {
         const result = await response.json();
 
         if (response.ok) {
-            // Если регистрация прошла успешно, бэк теперь должен возвращать токен (см. пункт 3)
+            // Если регистрация/вход прошли успешно и бэк вернул токен
             if (result.token) {
                 localStorage.setItem('token', result.token);
                 window.location.href = 'index.html';
