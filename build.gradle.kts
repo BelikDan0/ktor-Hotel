@@ -23,6 +23,7 @@ dependencies {
     val exposedVersion = "1.2.0" // Check for the latest version
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("io.ktor:ktor-server-auto-head-response-jvm:2.3.7")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:2.3.7")
     implementation("io.ktor:ktor-server-content-negotiation-jvm:2.3.7")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion") // или твоя версия Exposed
