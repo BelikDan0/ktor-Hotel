@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <title>Admin Panel — Управление Отелем</title>
     <style>
-        :root { --primary: #6366f1; --danger: #ef4444; --success: #22c55e; --bg: #f8fafc; }
+        :root { --primary: #6366f1; --danger: #ef4444; --success: #22c55e; --bg: #f8fafc; --edit: #3b82f6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; }
 
         /* Боковая панель */
-        .sidebar { width: 260px; background: #1e293b; color: white; height: 100vh; position: fixed; padding: 20px; }
+        .sidebar { width: 260px; background: #1e293b; color: white; height: 100vh; position: fixed; padding: 20px; z-index: 100; }
         .sidebar h2 { font-size: 1.2rem; margin-bottom: 30px; color: #94a3b8; text-transform: uppercase; }
         .nav-btn { width: 100%; padding: 12px; margin-bottom: 10px; border: none; background: transparent; color: #cbd5e1; text-align: left; cursor: pointer; border-radius: 6px; transition: 0.3s; }
         .nav-btn:hover { background: #334155; }
         .nav-btn.active { background: var(--primary); color: white; }
 
         /* Контент */
-        .main-content { margin-left: 300px; padding: 40px; width: 100%; max-width: 1000px; }
+        .main-content { margin-left: 300px; padding: 40px; width: 100%; max-width: 1100px; }
         .section { display: none; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .section.active { display: block; }
 
@@ -32,10 +32,18 @@
         td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
         .img-preview { width: 60px; height: 40px; object-fit: cover; border-radius: 4px; }
 
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 0.9rem; }
         .btn-add { background: var(--primary); color: white; width: 100%; margin-top: 10px; }
-        .btn-del { background: #fee2e2; color: var(--danger); padding: 6px 12px; }
+        .btn-edit { background: #dbeafe; color: var(--edit); margin-right: 5px; }
+        .btn-edit:hover { background: var(--edit); color: white; }
+        .btn-del { background: #fee2e2; color: var(--danger); }
         .btn-del:hover { background: var(--danger); color: white; }
+        .btn-cancel { background: #e2e8f0; color: #475569; margin-top: 5px; width: 100%; }
+
+        /* Статусы */
+        .status-pending { color: orange; font-weight: bold; }
+        .status-confirmed { color: var(--success); font-weight: bold; }
+        .status-rejected { color: var(--danger); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -44,48 +52,50 @@
     <h2>Grand Hotel Admin</h2>
     <button class="nav-btn active" onclick="showTab('add-tab', this)">➕ Добавить номер</button>
     <button class="nav-btn" onclick="showTab('list-tab', this); loadRoomsList();">📋 Список номеров</button>
+    <button class="nav-btn" onclick="showTab('notif-tab', this); loadAdminBookings();">🔔 Уведомления</button>
     <hr style="border: 0; border-top: 1px solid #334155; margin: 20px 0;">
     <button class="nav-btn" onclick="window.location.href='index.html'">🔙 На главную</button>
 </div>
 
 <div class="main-content">
     <div id="add-tab" class="section active">
-        <h1>Добавить новый номер</h1>
-        <div class="grid-form">
-            <div class="form-group">
-                <label>Номер комнаты (напр. 305)</label>
-                <input type="text" id="num">
-            </div>
-            <div class="form-group">
-                <label>Категория</label>
-                <select id="cat">
-                    <option value="Standard">Standard</option>
-                    <option value="Premium">Premium</option>
-                    <option value="Lux">Lux</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Цена (руб/сутки)</label>
-                <input type="number" id="prc">
-            </div>
-            <div class="form-group">
-                <label>Площадь (м²)</label>
-                <input type="number" id="sq">
-            </div>
-            <div class="form-group">
-                <label>Вместимость (чел)</label>
-                <input type="number" id="cap">
-            </div>
-            <div class="form-group">
-                <label>Фотография</label>
-                <input type="file" id="img" accept="image/*">
-            </div>
-            <div class="form-group full">
-                <label>Описание</label>
-                <textarea id="desc" rows="3"></textarea>
-            </div>
+        <h1 id="form-title">Добавить новый номер</h1>
+        <input type="hidden" id="edit-id"> <div class="grid-form">
+        <div class="form-group">
+            <label>Номер комнаты</label>
+            <input type="text" id="num" placeholder="Например: 305">
         </div>
-        <button class="btn btn-add" onclick="saveRoom()">Сохранить номер в базу</button>
+        <div class="form-group">
+            <label>Категория</label>
+            <select id="cat">
+                <option value="Standard">Standard</option>
+                <option value="Premium">Premium</option>
+                <option value="Lux">Lux</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Цена (руб/сутки)</label>
+            <input type="number" id="prc">
+        </div>
+        <div class="form-group">
+            <label>Площадь (м²)</label>
+            <input type="number" id="sq">
+        </div>
+        <div class="form-group">
+            <label>Вместимость (чел)</label>
+            <input type="number" id="cap">
+        </div>
+        <div class="form-group">
+            <label>Фотография (оставьте пустым, если не меняете)</label>
+            <input type="file" id="img" accept="image/*">
+        </div>
+        <div class="form-group full">
+            <label>Описание</label>
+            <textarea id="desc" rows="3"></textarea>
+        </div>
+    </div>
+        <button id="save-btn" class="btn btn-add" onclick="saveRoom()">Сохранить номер в базу</button>
+        <button id="cancel-btn" class="btn btn-cancel" style="display:none;" onclick="resetForm()">Отмена редактирования</button>
     </div>
 
     <div id="list-tab" class="section">
@@ -95,26 +105,24 @@
             <tr>
                 <th>ID</th>
                 <th>Фото</th>
-                <th>№</th>
+                <th>№ / Тип</th>
                 <th>Цена</th>
                 <th>Статус</th>
-                <th>Действие</th>
+                <th>Действия</th>
             </tr>
             </thead>
-            <tbody id="table-body">
-            </tbody>
+            <tbody id="table-body"></tbody>
         </table>
     </div>
-    <button class="nav-btn" onclick="showTab('notif-tab', this); loadAdminBookings();">🔔 Уведомления</button>
 
     <div id="notif-tab" class="section">
         <h1>Заявки на бронирование</h1>
-        <table id="bookings-table">
+        <table>
             <thead>
             <tr>
                 <th>ID</th>
                 <th>Номер</th>
-                <th>Пользователь ID</th>
+                <th>User ID</th>
                 <th>Дата</th>
                 <th>Статус</th>
                 <th>Действия</th>
@@ -135,7 +143,7 @@
         btn.classList.add('active');
     }
 
-    // Загрузка списка всех номеров
+    // Загрузка номеров
     async function loadRoomsList() {
         const res = await fetch(`${API}/rooms`);
         const rooms = await res.json();
@@ -150,15 +158,49 @@
                 <td><b>${r.number}</b><br><small>${r.category}</small></td>
                 <td>${r.price}₽</td>
                 <td>${r.isAvailable ? '<span style="color:green">Свободен</span>' : '<span style="color:red">Занят</span>'}</td>
-                <td>
-                    <button class="btn btn-del" onclick="deleteRoom(${r.id})">Удалить</button>
+                <td style="white-space: nowrap;">
+                    <button class="btn btn-edit" onclick='prepareEdit(${JSON.stringify(r)})'>✏️</button>
+                    <button class="btn btn-del" onclick="deleteRoom(${r.id})">🗑️</button>
                 </td>
             </tr>
         `).join('');
     }
 
-    // Сохранение нового номера
+    // Подготовка к редактированию
+    function prepareEdit(room) {
+        showTab('add-tab', document.querySelector('.nav-btn')); // Переключаем на вкладку формы
+
+        document.getElementById('edit-id').value = room.id;
+        document.getElementById('num').value = room.number;
+        document.getElementById('cat').value = room.category;
+        document.getElementById('prc').value = room.price;
+        document.getElementById('sq').value = room.squareMeters;
+        document.getElementById('cap').value = room.capacity;
+        document.getElementById('desc').value = room.description;
+
+        document.getElementById('form-title').innerText = "Редактировать номер №" + room.number;
+        document.getElementById('save-btn').innerText = "Обновить данные";
+        document.getElementById('cancel-btn').style.display = "block";
+    }
+
+    // Сброс формы
+    function resetForm() {
+        document.getElementById('edit-id').value = "";
+        document.getElementById('num').value = "";
+        document.getElementById('prc').value = "";
+        document.getElementById('sq').value = "";
+        document.getElementById('cap').value = "";
+        document.getElementById('desc').value = "";
+        document.getElementById('img').value = "";
+
+        document.getElementById('form-title').innerText = "Добавить новый номер";
+        document.getElementById('save-btn').innerText = "Сохранить номер в базу";
+        document.getElementById('cancel-btn').style.display = "none";
+    }
+
+    // Сохранение (POST или PUT)
     async function saveRoom() {
+        const id = document.getElementById('edit-id').value;
         const file = document.getElementById('img').files[0];
         let base64 = "";
 
@@ -181,8 +223,11 @@
             imageBytes: base64
         };
 
-        const res = await fetch(`${API}/admin/rooms/add`, {
-            method: 'POST',
+        const url = id ? `${API}/admin/rooms/${id}` : `${API}/rooms/add`;
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+            method: method,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -191,75 +236,67 @@
         });
 
         if (res.ok) {
-            alert("Номер добавлен!");
-            location.reload();
+            alert(id ? "Данные обновлены!" : "Номер добавлен!");
+            resetForm();
+            showTab('list-tab', document.querySelectorAll('.nav-btn')[1]);
+            loadRoomsList();
         } else {
-            alert("Ошибка при сохранении");
+            alert("Ошибка сервера при сохранении");
         }
     }
 
-    // Удаление номера
     async function deleteRoom(id) {
-        if (!confirm("Удалить этот номер навсегда?")) return;
-
+        if (!confirm("Удалить этот номер?")) return;
         const res = await fetch(`${API}/admin/rooms/delete/${id}`, {
             method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
-
-        if (res.ok) {
-            loadRoomsList(); // Перезагружаем таблицу
-        }
+        if (res.ok) loadRoomsList();
     }
+
+    // Бронирования
     async function loadAdminBookings() {
-    const res = await fetch(`${API}/admin/bookings/all`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    const bookings = await res.json();
-    const tbody = document.getElementById('bookings-body');
+        const res = await fetch(`${API}/admin/bookings/all`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const bookings = await res.json();
+        const tbody = document.getElementById('bookings-body');
 
-    tbody.innerHTML = bookings.map(b => `
-        <tr>
-            <td>${b.id}</td>
-            <td><b>${b.roomNumber}</b></td>
-            <td>${b.userId}</td>
-            <td>${new Date(b.createdAt).toLocaleDateString()}</td>
-            <td><span class="status-${b.status.toLowerCase()}">${b.status}</span></td>
-            <td>
-                ${b.status === 'PENDING' ? `
-                    <button class="btn" style="background:var(--success); color:white; padding:5px 10px;"
-                            onclick="updateStatus(${b.id}, 'CONFIRMED')">✅</button>
-                    <button class="btn" style="background:var(--danger); color:white; padding:5px 10px;"
-                            onclick="rejectBooking(${b.id})">❌</button>
-                ` : '—'}
-            </td>
-        </tr>
-    `).join('');
-}
-
-async function updateStatus(id, status, reason = "") {
-    const res = await fetch(`${API}/admin/bookings/update-status`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ id, status, reason })
-    });
-
-    if (res.ok) {
-        loadAdminBookings();
+        tbody.innerHTML = bookings.map(b => `
+            <tr>
+                <td>${b.id}</td>
+                <td><b>${b.roomNumber}</b></td>
+                <td>${b.userId}</td>
+                <td>${new Date(b.createdAt).toLocaleDateString()}</td>
+                <td><span class="status-${b.status.toLowerCase()}">${b.status}</span></td>
+                <td>
+                    ${b.status === 'PENDING' ? `
+                        <button class="btn" style="background:var(--success); color:white; padding:5px 10px;"
+                                onclick="updateBookingStatus(${b.id}, 'CONFIRMED')">✅</button>
+                        <button class="btn" style="background:var(--danger); color:white; padding:5px 10px;"
+                                onclick="rejectBooking(${b.id})">❌</button>
+                    ` : '—'}
+                </td>
+            </tr>
+        `).join('');
     }
-}
 
-function rejectBooking(id) {
-    const reason = prompt("Укажите причину отказа:");
-    if (reason !== null) {
-        updateStatus(id, 'REJECTED', reason);
+    async function updateBookingStatus(id, status, reason = "") {
+        const res = await fetch(`${API}/admin/bookings/update-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ id, status, reason })
+        });
+        if (res.ok) loadAdminBookings();
     }
-}
+
+    function rejectBooking(id) {
+        const reason = prompt("Причина отказа:");
+        if (reason) updateBookingStatus(id, 'REJECTED', reason);
+    }
 </script>
 </body>
 </html>

@@ -20,16 +20,64 @@ import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.auth.parseAuthorizationHeader
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.update
+import java.time.LocalDateTime
 
 fun main() {
     embeddedServer(Netty, port = 8080) {
         module()
     }.start(wait = true)
+}
+fun Application.setupBookingCleaner() {
+    // Запускаем корутину в области видимости приложения
+    launch(Dispatchers.IO) {
+        while (isActive) {
+            try {
+                transaction {
+                    // Рассчитываем время "дедлайна" (сейчас минус 24 часа)
+                    val threshold = LocalDateTime.now().minusHours(24)
+
+                    // Выбираем ID броней, которые просрочены
+                    val expiredIds = BookingsTable
+                        .select(BookingsTable.id) // Вместо .slice().selectAll()
+                        .where {
+                            (BookingsTable.status eq "PENDING") and
+                                    (BookingsTable.createdAt less threshold)
+                        }
+                        .map { it[BookingsTable.id] }
+
+                    if (expiredIds.isNotEmpty()) {
+                        // 1. Помечаем брони как отмененные
+                        BookingsTable.update({ BookingsTable.id inList expiredIds }) {
+                            it[status] = "EXPIRED"
+                            it[rejectionReason] = "Автоматическая отмена: не оплачено в течение 24 часов"
+                        }
+
+                        println("--- [CLEANER] Отменено просроченных броней: ${expiredIds.size} ---")
+                    }
+                }
+            } catch (e: Exception) {
+                println("--- [CLEANER ERROR] ${e.message} ---")
+            }
+
+            // Ждем перед следующей проверкой (например, 30 минут)
+            delay(30 * 60 * 1000L)
+        }
+    }
 }
 
 fun Application.module() {
@@ -73,6 +121,7 @@ fun Application.module() {
         password = "2324"
     )
 
+
     // Создание таблицы, если её нет
     transaction {
         SchemaUtils.create(UsersTable)
@@ -96,6 +145,12 @@ fun Application.module() {
                     it[price] = 5000.0
                     it[isAvailable] = true
 
+                }
+                UsersTable.insert {
+                    it[id]=1
+                    it[email]="admin@admins.ad"
+                    it[password]= PasswordUtil.hash("1234567")
+                    it[role]="ADMIN"
                 }
             }
         }
@@ -130,4 +185,5 @@ fun Application.module() {
 
     // 🔥 Подключаем твои роуты
     configureRouting()
+    setupBookingCleaner()
 }

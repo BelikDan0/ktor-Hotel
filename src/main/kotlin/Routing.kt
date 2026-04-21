@@ -291,7 +291,8 @@ fun Application.configureRouting()
                                 it[isAvailable] = room.isAvailable
 
                                 if (!room.imageBytes.isNullOrBlank()) {
-                                    val decodedBytes = java.util.Base64.getDecoder().decode(room.imageBytes)
+                                    val pureBase64 = room.imageBytes.substringAfter(",")
+                                    val decodedBytes = java.util.Base64.getDecoder().decode(pureBase64)
                                     it[image] = ExposedBlob(decodedBytes)
                                 }
                             }
