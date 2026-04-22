@@ -2,46 +2,93 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel — Управление Отелем</title>
+    <title>Admin Panel — LuxHotel</title>
     <style>
-        :root { --primary: #6366f1; --danger: #ef4444; --success: #22c55e; --bg: #f8fafc; --edit: #3b82f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; }
+        :root {
+            --primary: #b88d1f;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --bg: #ffffff; /* Белый фон для печати */
+            --sidebar-bg: #f8fafc;
+            --edit: #3b82f6;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; color: var(--text); }
 
         /* Боковая панель */
-        .sidebar { width: 260px; background: #1e293b; color: white; height: 100vh; position: fixed; padding: 20px; z-index: 100; }
-        .sidebar h2 { font-size: 1.2rem; margin-bottom: 30px; color: #94a3b8; text-transform: uppercase; }
-        .nav-btn { width: 100%; padding: 12px; margin-bottom: 10px; border: none; background: transparent; color: #cbd5e1; text-align: left; cursor: pointer; border-radius: 6px; transition: 0.3s; }
-        .nav-btn:hover { background: #334155; }
-        .nav-btn.active { background: var(--primary); color: white; }
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: var(--text);
+            height: 100vh;
+            position: fixed;
+            padding: 20px;
+            z-index: 100;
+            border-right: 1px solid var(--border);
+        }
+        .sidebar h2 { font-size: 1.2rem; margin-bottom: 30px; color: var(--primary); text-transform: uppercase; font-weight: 700; }
+
+        .nav-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text);
+            text-align: left;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.3s;
+            position: relative; /* Для красной метки */
+            font-weight: 500;
+        }
+        .nav-btn:hover { background: #f1f5f9; border-color: var(--border); }
+        .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Красная метка уведомлений */
+        .notification-dot {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 10px;
+            height: 10px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            border: 2px solid var(--sidebar-bg);
+            display: none; /* По умолчанию скрыта */
+        }
 
         /* Контент */
-        .main-content { margin-left: 300px; padding: 40px; width: 100%; max-width: 1100px; }
-        .section { display: none; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .section.active { display: block; }
+        .main-content { margin-left: 280px; padding: 40px; width: 100%; max-width: 1200px; }
+        .section { display: none; background: white; padding: 25px; border-radius: 12px; border: 1px solid var(--border); }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Таблица */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; background: #f8fafc; padding: 12px; color: #64748b; border-bottom: 2px solid var(--border); }
+        td { padding: 12px; border-bottom: 1px solid var(--border); }
+        .img-preview { width: 60px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); }
 
         /* Формы */
         .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .form-group { display: flex; flex-direction: column; margin-bottom: 15px; }
         .form-group.full { grid-column: span 2; }
-        label { font-size: 0.9rem; font-weight: 600; margin-bottom: 5px; color: #475569; }
-        input, textarea, select { padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 1rem; }
+        label { font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #64748b; }
+        input, textarea, select { padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; }
+        input:focus { outline: none; border-color: var(--primary); }
 
-        /* Таблица */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { text-align: left; background: #f1f5f9; padding: 12px; color: #475569; }
-        td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
-        .img-preview { width: 60px; height: 40px; object-fit: cover; border-radius: 4px; }
-
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 0.9rem; }
+        /* Кнопки */
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-add { background: var(--primary); color: white; width: 100%; margin-top: 10px; }
-        .btn-edit { background: #dbeafe; color: var(--edit); margin-right: 5px; }
-        .btn-edit:hover { background: var(--edit); color: white; }
-        .btn-del { background: #fee2e2; color: var(--danger); }
-        .btn-del:hover { background: var(--danger); color: white; }
-        .btn-cancel { background: #e2e8f0; color: #475569; margin-top: 5px; width: 100%; }
+        .btn-edit { background: #eff6ff; color: var(--edit); margin-right: 5px; }
+        .btn-del { background: #fef2f2; color: var(--danger); }
+        .btn-cancel { background: #f1f5f9; color: #64748b; margin-top: 5px; width: 100%; }
 
-        /* Статусы */
-        .status-pending { color: orange; font-weight: bold; }
+        .status-pending { color: #f59e0b; font-weight: bold; }
         .status-confirmed { color: var(--success); font-weight: bold; }
         .status-rejected { color: var(--danger); font-weight: bold; }
     </style>
@@ -49,51 +96,46 @@
 <body>
 
 <div class="sidebar">
-    <h2>Grand Hotel Admin</h2>
+    <h2>LuxHotel Admin</h2>
     <button class="nav-btn active" onclick="showTab('add-tab', this)">➕ Добавить номер</button>
     <button class="nav-btn" onclick="showTab('list-tab', this); loadRoomsList();">📋 Список номеров</button>
-    <button class="nav-btn" onclick="showTab('notif-tab', this); loadAdminBookings();">🔔 Уведомления</button>
-    <hr style="border: 0; border-top: 1px solid #334155; margin: 20px 0;">
+    <button class="nav-btn" id="notif-btn" onclick="showTab('notif-tab', this); loadAdminBookings();">
+        🔔 Уведомления
+        <span id="dot" class="notification-dot"></span>
+    </button>
+    <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
     <button class="nav-btn" onclick="window.location.href='index.html'">🔙 На главную</button>
 </div>
 
 <div class="main-content">
     <div id="add-tab" class="section active">
         <h1 id="form-title">Добавить новый номер</h1>
-        <input type="hidden" id="edit-id"> <div class="grid-form">
-        <div class="form-group">
-            <label>Номер комнаты</label>
-            <input type="text" id="num" placeholder="Например: 305">
+        <input type="hidden" id="edit-id">
+        <div class="grid-form">
+            <div class="form-group">
+                <label>Номер комнаты</label>
+                <input type="text" id="num" placeholder="Например: 305">
+            </div>
+            <div class="form-group">
+                <label>Категория</label>
+                <select id="cat">
+                    <option value="Standard">Standard</option>
+                    <option value="Premium">Premium</option>
+                    <option value="Lux">Lux</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Цена (руб/сутки)</label><input type="number" id="prc"></div>
+            <div class="form-group"><label>Площадь (м²)</label><input type="number" id="sq"></div>
+            <div class="form-group"><label>Вместимость (чел)</label><input type="number" id="cap"></div>
+            <div class="form-group">
+                <label>Фотография</label>
+                <input type="file" id="img" accept="image/*">
+            </div>
+            <div class="form-group full">
+                <label>Описание</label>
+                <textarea id="desc" rows="3"></textarea>
+            </div>
         </div>
-        <div class="form-group">
-            <label>Категория</label>
-            <select id="cat">
-                <option value="Standard">Standard</option>
-                <option value="Premium">Premium</option>
-                <option value="Lux">Lux</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Цена (руб/сутки)</label>
-            <input type="number" id="prc">
-        </div>
-        <div class="form-group">
-            <label>Площадь (м²)</label>
-            <input type="number" id="sq">
-        </div>
-        <div class="form-group">
-            <label>Вместимость (чел)</label>
-            <input type="number" id="cap">
-        </div>
-        <div class="form-group">
-            <label>Фотография (оставьте пустым, если не меняете)</label>
-            <input type="file" id="img" accept="image/*">
-        </div>
-        <div class="form-group full">
-            <label>Описание</label>
-            <textarea id="desc" rows="3"></textarea>
-        </div>
-    </div>
         <button id="save-btn" class="btn btn-add" onclick="saveRoom()">Сохранить номер в базу</button>
         <button id="cancel-btn" class="btn btn-cancel" style="display:none;" onclick="resetForm()">Отмена редактирования</button>
     </div>
@@ -135,6 +177,7 @@
 
 <script>
     const API = "http://localhost:8080";
+    const token = localStorage.getItem('token');
 
     function showTab(id, btn) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -143,22 +186,31 @@
         btn.classList.add('active');
     }
 
+    // Проверка новых заявок для красной точки
+    async function checkNewBookings() {
+        try {
+            const res = await fetch(`${API}/admin/bookings/all`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const bookings = await res.json();
+            const hasPending = bookings.some(b => b.status === 'PENDING');
+            document.getElementById('dot').style.display = hasPending ? 'block' : 'none';
+        } catch (e) { console.error(e); }
+    }
+
     // Загрузка номеров
     async function loadRoomsList() {
         const res = await fetch(`${API}/rooms`);
         const rooms = await res.json();
         const tbody = document.getElementById('table-body');
-
         tbody.innerHTML = rooms.map(r => `
             <tr>
                 <td>${r.id}</td>
-                <td>
-                    ${r.imageBytes ? `<img src="data:image/png;base64,${r.imageBytes}" class="img-preview">` : '—'}
-                </td>
+                <td>${r.imageBytes ? `<img src="data:image/png;base64,${r.imageBytes}" class="img-preview">` : '—'}</td>
                 <td><b>${r.number}</b><br><small>${r.category}</small></td>
                 <td>${r.price}₽</td>
                 <td>${r.isAvailable ? '<span style="color:green">Свободен</span>' : '<span style="color:red">Занят</span>'}</td>
-                <td style="white-space: nowrap;">
+                <td>
                     <button class="btn btn-edit" onclick='prepareEdit(${JSON.stringify(r)})'>✏️</button>
                     <button class="btn btn-del" onclick="deleteRoom(${r.id})">🗑️</button>
                 </td>
@@ -166,48 +218,16 @@
         `).join('');
     }
 
-    // Подготовка к редактированию
-    function prepareEdit(room) {
-        showTab('add-tab', document.querySelector('.nav-btn')); // Переключаем на вкладку формы
-
-        document.getElementById('edit-id').value = room.id;
-        document.getElementById('num').value = room.number;
-        document.getElementById('cat').value = room.category;
-        document.getElementById('prc').value = room.price;
-        document.getElementById('sq').value = room.squareMeters;
-        document.getElementById('cap').value = room.capacity;
-        document.getElementById('desc').value = room.description;
-
-        document.getElementById('form-title').innerText = "Редактировать номер №" + room.number;
-        document.getElementById('save-btn').innerText = "Обновить данные";
-        document.getElementById('cancel-btn').style.display = "block";
-    }
-
-    // Сброс формы
-    function resetForm() {
-        document.getElementById('edit-id').value = "";
-        document.getElementById('num').value = "";
-        document.getElementById('prc').value = "";
-        document.getElementById('sq').value = "";
-        document.getElementById('cap').value = "";
-        document.getElementById('desc').value = "";
-        document.getElementById('img').value = "";
-
-        document.getElementById('form-title').innerText = "Добавить новый номер";
-        document.getElementById('save-btn').innerText = "Сохранить номер в базу";
-        document.getElementById('cancel-btn').style.display = "none";
-    }
-
-    // Сохранение (POST или PUT)
+    // Сохранение / Редактирование
     async function saveRoom() {
         const id = document.getElementById('edit-id').value;
         const file = document.getElementById('img').files[0];
         let base64 = "";
 
         if (file) {
-            const reader = new FileReader();
             base64 = await new Promise(r => {
-                reader.onload = () => r(reader.result);
+                const reader = new FileReader();
+                reader.onload = () => r(reader.result.split(',')[1]);
                 reader.readAsDataURL(file);
             });
         }
@@ -223,45 +243,49 @@
             imageBytes: base64
         };
 
-        const url = id ? `${API}/admin/rooms/${id}` : `${API}/rooms/add`;
+        const url = id ? `${API}/admin/rooms/${id}` : `${API}/admin/rooms/add`;
         const method = id ? 'PUT' : 'POST';
 
         const res = await fetch(url, {
             method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify(data)
         });
 
         if (res.ok) {
-            alert(id ? "Данные обновлены!" : "Номер добавлен!");
+            alert("Успешно сохранено!");
             resetForm();
             showTab('list-tab', document.querySelectorAll('.nav-btn')[1]);
             loadRoomsList();
-        } else {
-            alert("Ошибка сервера при сохранении");
         }
     }
 
-    async function deleteRoom(id) {
-        if (!confirm("Удалить этот номер?")) return;
-        const res = await fetch(`${API}/admin/rooms/delete/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
-        if (res.ok) loadRoomsList();
+    function prepareEdit(room) {
+        showTab('add-tab', document.querySelectorAll('.nav-btn')[0]);
+        document.getElementById('edit-id').value = room.id;
+        document.getElementById('num').value = room.number;
+        document.getElementById('cat').value = room.category;
+        document.getElementById('prc').value = room.price;
+        document.getElementById('sq').value = room.squareMeters;
+        document.getElementById('cap').value = room.capacity;
+        document.getElementById('desc').value = room.description;
+        document.getElementById('form-title').innerText = "Редактировать номер №" + room.number;
+        document.getElementById('save-btn').innerText = "Обновить данные";
+        document.getElementById('cancel-btn').style.display = "block";
     }
 
-    // Бронирования
+    function resetForm() {
+        document.getElementById('edit-id').value = "";
+        document.getElementById('form-title').innerText = "Добавить новый номер";
+        document.getElementById('save-btn').innerText = "Сохранить номер в базу";
+        document.getElementById('cancel-btn').style.display = "none";
+        document.querySelectorAll('input, textarea').forEach(i => i.value = "");
+    }
+
     async function loadAdminBookings() {
-        const res = await fetch(`${API}/admin/bookings/all`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
+        const res = await fetch(`${API}/admin/bookings/all`, { headers: { 'Authorization': `Bearer ${token}` } });
         const bookings = await res.json();
         const tbody = document.getElementById('bookings-body');
-
         tbody.innerHTML = bookings.map(b => `
             <tr>
                 <td>${b.id}</td>
@@ -271,32 +295,32 @@
                 <td><span class="status-${b.status.toLowerCase()}">${b.status}</span></td>
                 <td>
                     ${b.status === 'PENDING' ? `
-                        <button class="btn" style="background:var(--success); color:white; padding:5px 10px;"
-                                onclick="updateBookingStatus(${b.id}, 'CONFIRMED')">✅</button>
-                        <button class="btn" style="background:var(--danger); color:white; padding:5px 10px;"
-                                onclick="rejectBooking(${b.id})">❌</button>
+                        <button class="btn" style="background:var(--success); color:white;" onclick="updateStatus(${b.id}, 'CONFIRMED')">✅</button>
+                        <button class="btn" style="background:var(--danger); color:white;" onclick="reject(${b.id})">❌</button>
                     ` : '—'}
                 </td>
             </tr>
         `).join('');
+        checkNewBookings(); // Обновляем точку после загрузки
     }
 
-    async function updateBookingStatus(id, status, reason = "") {
-        const res = await fetch(`${API}/admin/bookings/update-status`, {
+    async function updateStatus(id, status, reason = "") {
+        await fetch(`${API}/admin/bookings/update-status`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ id, status, reason })
         });
-        if (res.ok) loadAdminBookings();
+        loadAdminBookings();
     }
 
-    function rejectBooking(id) {
-        const reason = prompt("Причина отказа:");
-        if (reason) updateBookingStatus(id, 'REJECTED', reason);
+    function reject(id) {
+        const r = prompt("Причина отказа:");
+        if (r) updateStatus(id, 'REJECTED', r);
     }
+
+    // Авто-проверка каждые 30 секунд
+    setInterval(checkNewBookings, 30000);
+    checkNewBookings();
 </script>
 </body>
 </html>

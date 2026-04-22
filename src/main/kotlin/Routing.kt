@@ -30,6 +30,8 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
+import java.time.LocalDateTime
+import java.util.Base64
 
 fun Application.configureRouting()
 {
@@ -107,7 +109,7 @@ fun Application.configureRouting()
 
                                 // Берем байты из колонки image и кодируем в Base64 строку
                                 imageBytes = it[RoomsTable.image]?.bytes?.let { bytes ->
-                                    java.util.Base64.getEncoder().encodeToString(bytes)
+                                    Base64.getEncoder().encodeToString(bytes)
                                 }
                             )
                         }
@@ -133,36 +135,25 @@ fun Application.configureRouting()
 
                     val request = call.receive<BookingRequest>()
 
-                    // 🔥 Сначала проверяем в transaction и получаем результат
-                    val bookingExists = transaction {
-                        BookingsTable
-                            .selectAll()
-                            .where {
-                                (BookingsTable.userId eq userId) and
-                                        (BookingsTable.roomId eq request.roomId) and
-                                        (BookingsTable.status eq "PENDING")
-                            }
-                            .firstOrNull() != null
+                    // Парсим строки в LocalDateTime
+                    val checkInDate = LocalDateTime.parse(request.checkIn)
+                    val checkOutDate = LocalDateTime.parse(request.checkOut)
+
+                    if (checkOutDate.isBefore(checkInDate)) {
+                        return@post call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Дата выезда не может быть раньше заезда"))
                     }
 
-                    // 🔥 Потом уже вне transaction делаем respond
-                    if (bookingExists) {
-                        return@post call.respond(
-                            HttpStatusCode.Conflict,
-                            mapOf("error" to "У вас уже есть бронь на этот номер")
-                        )
-                    }
-
-                    // Создаём бронирование
                     transaction {
                         BookingsTable.insert {
                             it[BookingsTable.userId] = userId
                             it[BookingsTable.roomId] = request.roomId
+                            it[BookingsTable.checkIn] = checkInDate
+                            it[BookingsTable.checkOut] = checkOutDate
                             it[status] = "PENDING"
                         }
                     }
 
-                    call.respond(HttpStatusCode.Created, mapOf("message" to "Заявка отправлена"))
+                    call.respond(HttpStatusCode.Created, mapOf("message" to "Заявка отправлена на даты с ${request.checkIn} по ${request.checkOut}"))
                 }
 
                 get("/my") {
@@ -181,7 +172,9 @@ fun Application.configureRouting()
                                     price = it[RoomsTable.price],
                                     status = it[BookingsTable.status],
                                     rejectionReason = it[BookingsTable.rejectionReason], // Добавлено поле
-                                    createdAt = it[BookingsTable.createdAt].toString()
+                                    createdAt = it[BookingsTable.createdAt].toString(),
+                                    checkIn = it[BookingsTable.checkIn].toString(),
+                                    checkOut = it[BookingsTable.checkOut].toString()
                                 )
                             }
                     }
@@ -240,12 +233,16 @@ fun Application.configureRouting()
             authenticate("auth-jwt") {
                 // 1. Страница админ-панели (твоя заглушка)
                 get("/panel") {
-                    val role = call.principal<JWTPrincipal>()?.payload?.getClaim("role")?.asString()
-                    if (role == "ADMIN" || role == "Role.ADMIN") {
-                        // Просто редиректим на статический файл
+                    val principal = call.principal<JWTPrincipal>()
+                    val role = principal?.payload?.getClaim("role")?.asString()?.uppercase()
+
+                    // Логируем для отладки — увидишь в консоли IDEA, что там на самом деле
+                    println("DEBUG: Попытка входа в админку. Роль в токене: $role")
+
+                    if (role != null && (role == "ADMIN" || role == "ROLE.ADMIN" || role.contains("ADMIN"))) {
                         call.respondRedirect("/static/admin_panel.html")
                     } else {
-                        call.respond(HttpStatusCode.Forbidden, "Нет доступа")
+                        call.respond(HttpStatusCode.Forbidden, "Доступ запрещен. Ваша роль: $role")
                     }
                 }
 
@@ -268,7 +265,7 @@ fun Application.configureRouting()
                                 if (!room.imageBytes.isNullOrBlank()) {
                                     // Отрезаем заголовок "data:image/...,base64," если он прилетел
                                     val pureBase64 = room.imageBytes.substringAfter(",")
-                                    val decodedBytes = java.util.Base64.getDecoder().decode(pureBase64)
+                                    val decodedBytes = Base64.getDecoder().decode(pureBase64)
                                     it[image] = ExposedBlob(decodedBytes)
                                 }
                             }
@@ -292,7 +289,7 @@ fun Application.configureRouting()
 
                                 if (!room.imageBytes.isNullOrBlank()) {
                                     val pureBase64 = room.imageBytes.substringAfter(",")
-                                    val decodedBytes = java.util.Base64.getDecoder().decode(pureBase64)
+                                    val decodedBytes = Base64.getDecoder().decode(pureBase64)
                                     it[image] = ExposedBlob(decodedBytes)
                                 }
                             }
@@ -319,20 +316,21 @@ fun Application.configureRouting()
                                 (BookingsTable innerJoin RoomsTable)
                                     .selectAll()
                                     .map { row ->
-                                        // Ключевой момент: вызываем .toString() на ВСЕХ значениях
                                         mapOf(
                                             "id" to row[BookingsTable.id].toString(),
                                             "roomNumber" to row[RoomsTable.number],
                                             "status" to row[BookingsTable.status],
                                             "userId" to row[BookingsTable.userId].toString(),
-                                            "createdAt" to row[BookingsTable.createdAt].toString()
+                                            "createdAt" to row[BookingsTable.createdAt].toString(),
+                                            // ДОБАВЬ ЭТИ СТРОКИ:
+                                            "checkIn" to row[BookingsTable.checkIn].toString(),
+                                            "checkOut" to row[BookingsTable.checkOut].toString()
                                         )
                                     }
                             }
                             call.respond(bookings)
                         } catch (e: Exception) {
-                            // Если что-то пойдет не так, мы увидим нормальный текст ошибки
-                            call.respond(HttpStatusCode.InternalServerError, mapOf("error" to (e.message ?: "Unknown Error")))
+                            call.respond(HttpStatusCode.InternalServerError, mapOf("error" to (e.message ?: "Ошибка БД")))
                         }
                     }
 

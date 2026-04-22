@@ -2,634 +2,699 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>LUMINA SUITES | Панель управления</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>LuxHotel — Бронирование</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Cormorant+Garamond:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * {
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-dark: #a67c00;
+            --dark-bg: #0a0c10;
+            --surface: #14171c;
+            --surface-elevated: #1e2229;
+            --text-primary: #ffffff;
+            --text-secondary: #c0c3cc;
+            --transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        body {
+            background: radial-gradient(circle at 10% 20%, #0f1117, #050608);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-            background: radial-gradient(circle at 10% 20%, #0B0C10, #030507);
-            color: #EDEDED;
-            padding: 32px 24px;
-            line-height: 1.5;
             min-height: 100vh;
         }
-
-        /* плавное появление контента */
-        body, .section, .card {
-            animation: fadeSlideUp 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" opacity="0.03"><path fill="none" stroke="%23d4af37" stroke-width="0.6" d="M0 400 L1200 400 M600 0 L600 800 M300 200 L900 600 M900 200 L300 600"/><circle cx="200" cy="200" r="100" stroke="%23d4af37" stroke-width="0.5" fill="none"/><circle cx="1000" cy="600" r="150" stroke="%23d4af37" stroke-width="0.5" fill="none"/></svg>');
+            background-repeat: repeat;
+            pointer-events: none;
+            z-index: 0;
         }
-
-        @keyframes fadeSlideUp {
-            0% {
-                opacity: 0;
-                transform: translateY(18px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* глобальный контейнер — центровка + макс ширина */
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 1rem 2rem 3rem;
+            position: relative;
+            z-index: 2;
         }
-
-        /* навигация — стиль премиум */
+        /* Sticky меню */
         .nav {
-            background: rgba(15, 20, 30, 0.75);
-            backdrop-filter: blur(14px);
-            border-radius: 60px;
-            padding: 8px 20px;
-            margin-bottom: 40px;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 215, 0, 0.15) inset;
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
             display: flex;
             flex-wrap: wrap;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid rgba(255, 215, 0, 0.25);
-            transition: all 0.3s ease;
+            justify-content: center;
+            gap: 1rem;
+            background: rgba(20, 23, 28, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 60px;
+            padding: 0.6rem 1.8rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
-
         .nav button {
             background: transparent;
             border: none;
+            padding: 0.7rem 1.5rem;
             font-weight: 600;
-            font-size: 0.95rem;
-            padding: 10px 24px;
-            border-radius: 40px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            color: #CCCCDD;
-            letter-spacing: 0.3px;
-            backdrop-filter: blur(4px);
-            font-family: inherit;
-        }
-
-        .nav button:hover {
-            background: rgba(255, 215, 0, 0.12);
-            color: #FFE6A3;
-            transform: translateY(-2px);
-        }
-
-        .nav button.active {
-            background: linear-gradient(135deg, #E5B13B, #C88F1E);
-            color: #0A0A0F;
-            box-shadow: 0 6px 14px rgba(197, 142, 31, 0.3);
-            text-shadow: none;
-            font-weight: 700;
-        }
-
-        #admin-link {
-            background: linear-gradient(135deg, #C53A1F, #9A2A12) !important;
-            color: #FFECB3 !important;
-            margin-left: auto;
-            box-shadow: 0 0 8px rgba(197, 58, 31, 0.5);
-            border: 1px solid rgba(255, 200, 100, 0.4);
-        }
-
-        #admin-link:hover {
-            background: linear-gradient(135deg, #DF4C2E, #B33218) !important;
-            transform: scale(1.02);
-            box-shadow: 0 8px 18px rgba(197, 58, 31, 0.4);
-        }
-
-        button:active {
-            transform: scale(0.97);
-        }
-
-        /* секции */
-        .section {
-            display: none;
-            animation: fadeSlideUp 0.45s ease-out;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        h2 {
-            font-size: 2rem;
-            font-weight: 600;
-            background: linear-gradient(120deg, #F5E7C8, #E0BC6E);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            letter-spacing: -0.3px;
-            margin-bottom: 28px;
-            border-left: 4px solid #E5B13B;
-            padding-left: 20px;
-        }
-
-        /* сетка карточек номеров */
-        #rooms-list {
-            display: flex;
-            flex-direction: column;
-            gap: 28px;
-        }
-
-        /* премиум карточка */
-        .card {
-            background: rgba(18, 24, 34, 0.85);
-            backdrop-filter: blur(8px);
-            border-radius: 32px;
-            padding: 0;
-            overflow: hidden;
-            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            border: 1px solid rgba(229, 177, 59, 0.2);
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(229, 177, 59, 0.6);
-            box-shadow: 0 28px 40px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(229, 177, 59, 0.3) inset;
-        }
-
-        /* внутренняя структура карточки (flex от JS сохраняется, улучшаем отступы) */
-        .card > div {
-            padding: 24px 28px;
-            display: flex;
-            gap: 28px;
-            flex-wrap: wrap;
-        }
-
-        /* изображения */
-        .card img {
-            border-radius: 24px;
-            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5);
-            transition: transform 0.4s ease;
-            object-fit: cover;
-            background: #1E1F2C;
-        }
-
-        .card:hover img {
-            transform: scale(1.02);
-        }
-
-        .card > div > div:first-child {
-            flex-shrink: 0;
-        }
-
-        /* текстовый блок */
-        .card h3 {
-            font-size: 1.7rem;
-            font-weight: 600;
-            letter-spacing: -0.2px;
-            background: linear-gradient(135deg, #FFFFFF, #E5CFA3);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            margin-bottom: 12px;
-        }
-
-        .card p {
-            color: #B9C3D9;
-            margin: 8px 0;
-            font-size: 0.95rem;
-        }
-
-        .price {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #E5B13B;
-            text-shadow: 0 0 6px rgba(229, 177, 59, 0.3);
-            margin: 12px 0 16px 0 !important;
-            display: inline-block;
-        }
-
-        /* универсальные кнопки в карточках */
-        .card button, .btn-pay, .card button[onclick*="forceDeleteBooking"], .card button[onclick*="bookRoom"] {
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            padding: 12px 28px;
-            border-radius: 40px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.25s ease;
             font-size: 0.9rem;
-            letter-spacing: 0.3px;
-            background: rgba(30, 40, 55, 0.9);
-            color: #F5E7D3;
-            backdrop-filter: blur(4px);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
         }
-
-        /* Кнопка ЗАБРОНИРОВАТЬ */
-        .card button[onclick*="bookRoom"] {
-            background: linear-gradient(95deg, #2C3E4E, #1F2A38);
-            border: 1px solid rgba(229, 177, 59, 0.5);
-            color: #FFEFCF;
-        }
-        .card button[onclick*="bookRoom"]:hover {
-            background: linear-gradient(95deg, #3E566B, #2A3A48);
-            border-color: #E5B13B;
-            box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+        .nav button i { font-size: 1.1rem; }
+        .nav button:hover {
+            color: var(--gold);
+            background: rgba(212, 175, 55, 0.1);
             transform: translateY(-2px);
         }
-
-        /* Оплатить (btn-pay) */
-        .btn-pay {
-            background: linear-gradient(115deg, #1F6E43, #0F4D2F) !important;
-            border: 1px solid #A5D6A5 !important;
-            color: #F9F3DF !important;
-            box-shadow: 0 4px 12px rgba(31, 110, 67, 0.4);
+        .nav button.active {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #0a0c10;
+            box-shadow: 0 5px 12px rgba(212, 175, 55, 0.3);
         }
-        .btn-pay:hover {
-            background: linear-gradient(115deg, #2B8C56, #146B3A) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(31, 110, 67, 0.6);
-        }
-
-        /* кнопка отмены заявки (forceDeleteBooking) — элегантный глубокий красный */
-        .card button[onclick*="forceDeleteBooking"] {
-            background: linear-gradient(115deg, #7A2E2A, #561E1B) !important;
-            border: 1px solid #E07A5F !important;
-            color: #FFE5DC !important;
-        }
-        .card button[onclick*="forceDeleteBooking"]:hover {
-            background: linear-gradient(115deg, #9C3F3A, #6C2622) !important;
-            transform: translateY(-2px);
-            border-color: #FF9F7C;
-        }
-
-        /* статусы (уведомления) */
-        .status {
-            display: inline-block;
-            padding: 6px 16px;
-            border-radius: 100px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            letter-spacing: 0.3px;
-            backdrop-filter: blur(2px);
-            box-shadow: inset 0 0 0 1px rgba(255,255,240,0.1);
-        }
-
-        .status-pending {
-            background: rgba(245, 176, 65, 0.2);
-            color: #FBC85F;
-            border-left: 2px solid #F5B041;
-        }
-        .status-approved {
-            background: rgba(46, 204, 113, 0.2);
-            color: #A3E4B7;
-            border-left: 2px solid #2ECC71;
-        }
-        .status-rejected {
-            background: rgba(231, 76, 60, 0.2);
-            color: #F1948A;
-            border-left: 2px solid #E74C3C;
-        }
-        .status-paid {
-            background: rgba(241, 196, 15, 0.25);
-            color: #F7DC6F;
-            border-left: 2px solid #F1C40F;
-        }
-
-        /* уведомления — левая граница остается от JS, но мы улучшаем карточку */
-        #bookings-list .card {
-            padding: 0;
-        }
-        #bookings-list .card > div {
-            padding: 20px 28px;
-        }
-
-        /* дополнительные стили для текста в карточках уведомлений */
-        #bookings-list h4 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: #F0E2C5;
-            margin-bottom: 12px;
-        }
-
-        /* пустое состояние */
-        #bookings-list, #rooms-list {
-            transition: all 0.2s;
-        }
-
-        /* премиум скроллбар */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #10141E;
-            border-radius: 8px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #E5B13B;
-            border-radius: 8px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #F5C542;
-        }
-
-        /* адаптивность */
-        @media (max-width: 780px) {
-            body {
-                padding: 20px 16px;
-            }
-            .card > div {
-                flex-direction: column;
-                padding: 20px;
-            }
-            .card img, .card > div > div:first-child {
-                width: 100% !important;
-                text-align: center;
-            }
-            .card img {
-                width: 100% !important;
-                max-height: 200px;
-                object-fit: cover;
-            }
-            .nav {
-                border-radius: 32px;
-                padding: 12px 16px;
-                justify-content: center;
-            }
-            #admin-link {
-                margin-left: 0;
-            }
-            h2 {
-                font-size: 1.7rem;
-            }
-            .price {
-                font-size: 1.4rem;
-            }
-        }
-
-        /* красивое сообщение о загрузке */
-        #rooms-list:empty:before, #bookings-list:empty:before {
-            content: "✨ Загрузка премиум предложений...";
-            display: block;
-            padding: 40px;
-            text-align: center;
-            background: rgba(20, 24, 34, 0.6);
-            border-radius: 48px;
-            backdrop-filter: blur(12px);
-            font-weight: 500;
-            color: #CBA458;
-        }
-
-        /* иконки и дополнительные акценты */
-        .price::before {
-            content: "✦ ";
-            font-weight: 300;
-            color: #F5C542;
-        }
-
-        .card button:active {
-            transform: scale(0.96);
-        }
-
-        /* микро-анимация для появления новых карточек */
-        @keyframes cardGlow {
-            0% { border-color: rgba(229, 177, 59, 0.1); box-shadow: 0 10px 20px -10px rgba(0,0,0,0.2);}
-            100% { border-color: rgba(229, 177, 59, 0.5); box-shadow: 0 25px 35px -12px rgba(0,0,0,0.5);}
-        }
-
-        /* стили для placeholder изображения (если нет фото) */
-        .card > div > div:first-child > div {
-            background: #191E2C;
-            border-radius: 24px;
+        /* Бейдж уведомлений */
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 0 0 2px rgba(20, 23, 28, 0.8);
+        }
+        .section { display: none; animation: fadeIn 0.5s ease-out; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
             font-weight: 500;
-            color: #B59D6E;
-            border: 1px dashed #E5B13B;
+            background: linear-gradient(135deg, #fff, var(--gold-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--gold);
+            padding-left: 1.2rem;
+        }
+        /* Дата-пикер */
+        .date-picker-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            background: rgba(30, 34, 41, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(212, 175, 55, 0.25);
+        }
+        .date-field { flex: 1; min-width: 200px; }
+        .date-field label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        input[type="datetime-local"] {
+            width: 100%;
+            background: #0f1117;
+            border: 1px solid #2c313a;
+            padding: 12px 16px;
+            border-radius: 28px;
+            color: white;
+            font-family: 'Inter', monospace;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+        input[type="datetime-local"]:focus {
+            border-color: var(--gold);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+        .date-note { align-self: flex-end; font-size: 0.75rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+
+        /* Блок фильтрации */
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+        .filter-btn {
+            background: rgba(30, 34, 41, 0.6);
             backdrop-filter: blur(4px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 40px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .filter-btn.active-filter {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #0a0c10;
+            border-color: transparent;
+        }
+        .filter-btn:hover:not(.active-filter) {
+            background: rgba(212, 175, 55, 0.2);
+            color: var(--gold);
         }
 
-        /* небольшие детали */
-        .card .status + p, .card p b {
-            color: #E5CFA3;
+        /* Карточки номеров */
+        #rooms-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2rem;
         }
-
-        .card p[style*="color:red"] {
-            color: #FF9F7C !important;
-            background: rgba(255, 80, 40, 0.1);
-            padding: 8px 14px;
+        .room-card {
+            background: var(--surface-elevated);
+            border-radius: 28px;
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.4);
+        }
+        .room-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--gold);
+            box-shadow: 0 25px 40px -12px rgba(212, 175, 55, 0.2);
+        }
+        .room-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .room-card:hover img { transform: scale(1.02); }
+        .room-info { padding: 1.5rem; }
+        .room-info h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.7rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        .room-info p { color: var(--text-secondary); line-height: 1.5; margin: 0.75rem 0; }
+        .price { font-size: 1.4rem; font-weight: 700; margin: 1rem 0; color: white; }
+        .room-card button {
+            background: linear-gradient(95deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05));
+            border: 1px solid var(--gold);
+            border-radius: 40px;
+            padding: 0.8rem;
+            width: 100%;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: var(--gold);
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .room-card button:hover:not(:disabled) {
+            background: var(--gold);
+            color: #0a0c10;
+            box-shadow: 0 0 10px var(--gold);
+        }
+        .room-card button:disabled { opacity: 0.5; cursor: not-allowed; }
+        /* Бронирования */
+        .booking-item {
+            background: rgba(30, 34, 41, 0.8);
+            backdrop-filter: blur(4px);
             border-radius: 24px;
-            display: inline-block;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 6px solid var(--gold);
+            transition: 0.2s;
         }
+        .booking-item p { margin: 8px 0; color: var(--text-secondary); }
+        .status-paid { color: #4caf50; font-weight: 700; }
+        .status-pending { color: #ffb347; font-weight: 700; }
+        .booking-buttons { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+        .booking-buttons button {
+            background: var(--gold);
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .booking-buttons button:hover { background: white; transform: scale(0.98); }
+        .cancel-btn { background: #e74c3c !important; color: white !important; }
+        .cancel-btn:hover { background: #c0392b !important; }
+        .loader, .empty-state { text-align: center; padding: 3rem; background: rgba(255,255,255,0.02); border-radius: 48px; color: var(--text-secondary); }
+        /* Адаптивность */
+        @media (max-width: 720px) {
+            .container { padding: 0.5rem 1rem 2rem; }
+            .nav { flex-direction: column; align-items: stretch; border-radius: 32px; padding: 0.8rem; gap: 0.6rem; }
+            .nav button { justify-content: center; width: 100%; }
+            h2 { font-size: 1.8rem; }
+            .date-picker-container { flex-direction: column; gap: 1rem; }
+            #rooms-list { grid-template-columns: 1fr; }
+            .filter-container { gap: 8px; }
+            .filter-btn { padding: 0.4rem 1rem; font-size: 0.8rem; }
+        }
+        footer { margin-top: 3rem; text-align: center; font-size: 0.7rem; color: #3f4450; }
 
-        /* кнопка выхода */
-        .nav button:last-child {
-            background: rgba(200, 70, 50, 0.2);
-            border: 1px solid rgba(255, 130, 90, 0.5);
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
         }
-        .nav button:last-child:hover {
-            background: rgba(220, 80, 60, 0.4);
-            color: #FFC9B7;
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--surface-elevated);
+            border-radius: 32px;
+            max-width: 550px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.5);
+            animation: modalFadeIn 0.3s ease;
         }
+        @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        .modal-header h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: var(--gold); }
+        .close-modal { background: none; border: none; font-size: 1.8rem; color: var(--text-secondary); cursor: pointer; transition: 0.2s; }
+        .close-modal:hover { color: var(--gold); }
+        .modal-body { padding: 1.5rem; }
+        .modal-body img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 24px; margin-bottom: 1rem; }
+        .modal-details p { margin: 0.8rem 0; line-height: 1.5; }
+        .modal-details .price { font-size: 1.5rem; margin: 1rem 0; }
+        .modal-book-btn {
+            margin-top: 1.2rem;
+            width: 100%;
+            background: linear-gradient(95deg, var(--gold-dark), var(--gold));
+            border: none;
+            padding: 0.9rem;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-book-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(212,175,55,0.4); }
+        @media (max-width: 550px) { .modal-content { width: 95%; } }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="nav">
-        <button onclick="showTab('rooms')" id="btn-rooms" class="active">✦ ВЫБРАТЬ НОМЕР</button>
-        <button onclick="showTab('bookings')" id="btn-bookings">📜 ЗАЯВКИ & УВЕДОМЛЕНИЯ</button>
-        <button id="admin-link" style="display:none;" onclick="goToAdmin()">👑 АДМИН ПАНЕЛЬ</button>
-        <button onclick="logout()">🚪 ВЫЙТИ</button>
+        <button onclick="showTab('rooms')" id="btn-rooms" class="active"><i class="fas fa-hotel"></i> ВЫБРАТЬ НОМЕР</button>
+        <button onclick="showTab('bookings')" id="btn-bookings"><i class="fas fa-ticket-alt"></i> ЗАЯВКИ & УВЕДОМЛЕНИЯ <span id="bookingBadge" class="badge" style="display: none;">!</span></button>
+        <button id="admin-link" style="display:none;" onclick="goToAdmin()"><i class="fas fa-crown"></i> АДМИН ПАНЕЛЬ</button>
+        <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> ВЫЙТИ</button>
     </div>
 
     <div id="rooms" class="section active">
-        <h2>✨ ЛЮКСОВЫЕ АПАРТАМЕНТЫ</h2>
-        <div id="rooms-list">Загрузка роскошных номеров...</div>
+        <h2><i class="fas fa-key"></i> Люксовые апартаменты</h2>
+        <div class="date-picker-container">
+            <div class="date-field"><label><i class="far fa-calendar-check"></i> ДАТА ЗАЕЗДА</label><input type="datetime-local" id="globalCheckIn"></div>
+            <div class="date-field"><label><i class="far fa-calendar-times"></i> ДАТА ВЫЕЗДА</label><input type="datetime-local" id="globalCheckOut"></div>
+            <div class="date-note"><i class="fas fa-info-circle"></i> выберите даты перед бронированием</div>
+        </div>
+
+        <!-- Блок фильтрации по типу номера -->
+        <div class="filter-container" id="filterContainer"></div>
+
+        <div id="rooms-list"><div class="loader"><i class="fas fa-spinner fa-pulse"></i> Загрузка номеров...</div></div>
     </div>
 
     <div id="bookings" class="section">
-        <h2>🔔 МОИ БРОНИ И СТАТУСЫ</h2>
-        <div id="bookings-list">Нет уведомлений</div>
+        <h2><i class="fas fa-envelope-open-text"></i> Мои брони и статусы</h2>
+        <div id="bookings-list"><div class="empty-state"><i class="fas fa-bed"></i> Нет активных уведомлений</div></div>
+    </div>
+    <footer><i class="fas fa-gem"></i> LuxHotel — безупречный сервис</footer>
+</div>
+
+<!-- Модальное окно -->
+<div id="roomModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalRoomTitle">Номер</h3>
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <img id="modalImage" src="" alt="Фото номера">
+            <div class="modal-details">
+                <p id="modalDescription"></p>
+                <div class="price" id="modalPrice"></div>
+                <button class="modal-book-btn" id="modalBookBtn">ЗАБРОНИРОВАТЬ</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    const API = "http://localhost:8080";
+    const API = "";
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/static/login.html';
 
-    function showTab(id) {
+    let hasPendingBooking = false;
+    let currentBookings = [];
+    let currentModalRoomId = null;
+    let allRooms = [];          // храним все номера для фильтрации
+    let currentFilter = "all";  // текущий выбранный фильтр
+
+    // Обновление красного кружочка
+    function updateNotificationBadge() {
+        const badge = document.getElementById('bookingBadge');
+        badge.style.display = hasPendingBooking ? 'flex' : 'none';
+    }
+
+    // Проверка наличия PENDING заявок
+    async function checkPendingStatus() {
+        try {
+            const res = await fetch(`${API}/bookings/my`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (!res.ok) return false;
+            const bookings = await res.json();
+            currentBookings = bookings;
+            hasPendingBooking = bookings.some(b => b.status && b.status.toUpperCase() === 'PENDING');
+            updateNotificationBadge();
+            return hasPendingBooking;
+        } catch (e) { console.warn(e); return false; }
+    }
+
+    // Блокировка/разблокировка кнопок бронирования
+    function setButtonsDisabledState(disabled) {
+        document.querySelectorAll('.room-card button:first-of-type').forEach(btn => {
+            if (disabled) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.title = 'У вас есть активная заявка. Оплатите или отмените её.';
+                if (btn.innerHTML.includes('ЗАБРОНИРОВАТЬ')) btn.innerHTML = '<i class="fas fa-hourglass-half"></i> ЗАЯВКА ОЖИДАЕТ';
+            } else {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.title = '';
+                btn.innerHTML = '<i class="fas fa-calendar-plus"></i> ЗАБРОНИРОВАТЬ';
+            }
+        });
+    }
+
+    // Переключение вкладок
+    function showTab(tabId) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.getElementById('btn-' + id).classList.add('active');
-
-        if(id === 'rooms') loadRooms();
-        if(id === 'bookings') loadMyBookings();
+        document.getElementById(tabId).classList.add('active');
+        document.getElementById('btn-' + tabId).classList.add('active');
+        if (tabId === 'rooms') { renderRooms(); checkPendingStatus().then(p => setButtonsDisabledState(p)); }
+        if (tabId === 'bookings') loadMyBookings();
     }
 
-    function parseJwt(token) {
-        try {
-            return JSON.parse(atob(token.split('.')[1]));
-        } catch (e) {
-            return null;
+    // Отрисовка номеров с учётом фильтра
+    function renderRooms() {
+        const list = document.getElementById('rooms-list');
+        let filtered = allRooms;
+        if (currentFilter !== "all") {
+            filtered = allRooms.filter(room => (room.type || room.category || 'Стандарт') === currentFilter);
         }
-    }
-
-    async function loadRooms() {
-        const res = await fetch(`${API}/rooms`);
-        const rooms = await res.json();
-
-        document.getElementById('rooms-list').innerHTML = rooms.map(r => `
-            <div class="card">
-                <div style="display: flex; gap: 15px;">
-                    ${r.imageBytes ?
-                        `<img src="data:image/png;base64,${r.imageBytes}" style="width:150px; border-radius:8px; object-fit: cover;">` :
-                        `<div style="width:150px; height:100px; background:#1A1E2C; border-radius:24px; display:flex; align-items:center; justify-content:center; font-size:0.8rem; color:#CBA458;">📷 Нет фото</div>`
-                    }
-                    <div style="flex:1">
-                        <h3>№${r.number} — ${r.category}</h3>
-                        <p>${r.description}</p>
-                        <div style="font-size: 0.9em; color: #B2B9D0; margin-bottom: 10px;">
-                            <span>📏 ${r.squareMeters} м²</span> |
-                            <span>👥 до ${r.capacity} чел.</span>
-                        </div>
-                        <p class="price">${r.price} ₽ / сутки</p>
-                        <button onclick="bookRoom(${r.id})">ЗАБРОНИРОВАТЬ</button>
+        if (filtered.length === 0) {
+            list.innerHTML = '<div class="empty-state"><i class="fas fa-filter"></i> Нет номеров выбранного типа</div>';
+            return;
+        }
+        list.innerHTML = filtered.map(room => `
+            <div class="room-card">
+                ${room.imageBytes ? `<img src="data:image/jpeg;base64,${room.imageBytes}" alt="Номер ${room.number}">` : '<img src="https://placehold.co/600x400/1e2229/d4af37?text=LUX+SUITE" alt="room">'}
+                <div class="room-info">
+                    <h3>Номер №${room.number}</h3>
+                    <p style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                        <i class="fas fa-tag" style="color: var(--gold); font-size: 0.8rem;"></i>
+                        <strong style="color: var(--gold);">${room.type || room.category || 'Стандарт'}</strong>
+                    </p>
+                    <p>${room.description || 'Элегантный номер с панорамным видом, премиум-класс'}</p>
+                    <div class="price">${room.price.toLocaleString()} ₽ <span style="font-size:0.9rem;">/ ночь</span></div>
+                    <div style="display: flex; gap: 10px; margin-top: 5px;">
+                        <button onclick="createBooking(${room.id})"><i class="fas fa-calendar-plus"></i> ЗАБРОНИРОВАТЬ</button>
+                        <button onclick="openModal(${JSON.stringify(room).replace(/"/g, '&quot;')})" style="background: rgba(212,175,55,0.2); width: auto; padding: 0.8rem 1rem;"><i class="fas fa-eye"></i> ПОДРОБНЕЕ</button>
                     </div>
                 </div>
             </div>
         `).join('');
+        const pending = hasPendingBooking;
+        setButtonsDisabledState(pending);
     }
 
+    // Построение кнопок фильтрации
+    function buildFilters(rooms) {
+        const typesSet = new Set();
+        typesSet.add("all");
+        rooms.forEach(room => {
+            const type = room.type || room.category || 'Стандарт';
+            typesSet.add(type);
+        });
+        const filterDiv = document.getElementById('filterContainer');
+        filterDiv.innerHTML = Array.from(typesSet).map(type => `
+            <button class="filter-btn ${currentFilter === type ? 'active-filter' : ''}" data-type="${type}">${type === 'all' ? 'Все номера' : type}</button>
+        `).join('');
+        // Добавляем обработчики
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const type = btn.getAttribute('data-type');
+                currentFilter = type;
+                renderRooms();
+                // Обновить активный класс
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter'));
+                btn.classList.add('active-filter');
+            });
+        });
+    }
+
+    // Загрузка номеров (GET /rooms)
+    async function loadRooms() {
+        const list = document.getElementById('rooms-list');
+        list.innerHTML = '<div class="loader"><i class="fas fa-spinner fa-pulse"></i> Загрузка номеров...</div>';
+        try {
+            const res = await fetch(`${API}/rooms`);
+            if (!res.ok) throw new Error('Ошибка загрузки');
+            const rooms = await res.json();
+            allRooms = rooms;
+            if (!rooms.length) { list.innerHTML = '<div class="empty-state"><i class="fas fa-ban"></i> Номера временно недоступны</div>'; return; }
+            buildFilters(rooms);
+            renderRooms();
+        } catch(e) { list.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i> Ошибка соединения</div>'; }
+    }
+
+    // Создание брони (POST /bookings/create)
+    async function createBooking(roomId) {
+        const hasPending = await checkPendingStatus();
+        if (hasPending) { alert("❌ У вас уже есть активная заявка. Оплатите или отмените её."); return; }
+        const checkIn = document.getElementById('globalCheckIn').value;
+        const checkOut = document.getElementById('globalCheckOut').value;
+        if (!checkIn || !checkOut) { alert("📅 Выберите даты заезда и выезда!"); return; }
+        try {
+            const response = await fetch(`${API}/bookings/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ roomId, checkIn: checkIn + ":00", checkOut: checkOut + ":00" })
+            });
+            if (response.ok) {
+                alert("✨ Заявка отправлена! Оплатите в разделе уведомлений.");
+                await checkPendingStatus();
+                setButtonsDisabledState(true);
+                showTab('bookings');
+                closeModal();
+            } else {
+                const err = await response.json();
+                alert(err.error || "Ошибка бронирования");
+            }
+        } catch(e) { alert("Ошибка соединения"); }
+    }
+
+    // Загрузка моих броней (GET /bookings/my)
     async function loadMyBookings() {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${API}/bookings/my`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const bookings = await res.json();
-
-        document.getElementById('bookings-list').innerHTML = bookings.map(b => {
-            const borderColor = b.status === 'CONFIRMED' ? '#2ECC71' : (b.status === 'REJECTED' ? '#E67E22' : '#F5B041');
-            let statusClass = '';
-            if (b.status === 'CONFIRMED') statusClass = 'status-approved';
-            else if (b.status === 'REJECTED') statusClass = 'status-rejected';
-            else if (b.status === 'PAID') statusClass = 'status-paid';
-            else statusClass = 'status-pending';
-
-            return `
-            <div class="card" style="border-left: 5px solid ${borderColor}; transition: 0.2s;">
-                <div style="padding: 20px 28px;">
-                    <h4>🏨 Номер №${b.roomNumber}</h4>
-                    <p>Статус: <span class="status ${statusClass}">${b.status}</span></p>
-                    <div style="margin-top: 18px; display: flex; gap: 16px; flex-wrap: wrap;">
-                        ${b.status === 'CONFIRMED' ? `<button class="btn-pay" onclick="payBooking(${b.id})">💎 ОПЛАТИТЬ</button>` : ''}
-                        <button onclick="forceDeleteBooking(${b.id})" style="background:#6c757d; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">🗑️ ОТМЕНИТЬ ЗАЯВКУ</button>
+        const list = document.getElementById('bookings-list');
+        list.innerHTML = '<div class="loader"><i class="fas fa-spinner fa-pulse"></i> Загрузка броней...</div>';
+        try {
+            const res = await fetch(`${API}/bookings/my`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (!res.ok) throw new Error();
+            const bookings = await res.json();
+            currentBookings = bookings;
+            hasPendingBooking = bookings.some(b => ['PENDING', 'CONFIRMED'].includes(b.status.toUpperCase()));
+            updateNotificationBadge();
+            if (bookings.length === 0) {
+                list.innerHTML = '<div class="empty-state"><i class="far fa-smile-wink"></i> У вас пока нет бронирований.</div>';
+                return;
+            }
+            list.innerHTML = bookings.map(b => {
+                const status = b.status.toUpperCase();
+                const isPending = status === 'PENDING';
+                const isConfirmed = status === 'CONFIRMED';
+                const isPaid = status === 'PAID';
+                const isRejected = status === 'REJECTED';
+                let statusClass = 'status-pending';
+                let statusIcon = '<i class="fas fa-hourglass-half"></i>';
+                if (isPaid) { statusClass = 'status-paid'; statusIcon = '<i class="fas fa-check-circle"></i>'; }
+                else if (isConfirmed) { statusClass = 'status-paid'; statusIcon = '<i class="fas fa-thumbs-up"></i>'; }
+                else if (isRejected) { statusIcon = '<i class="fas fa-times-circle"></i>'; }
+                return `
+                    <div class="booking-item" style="${isConfirmed ? 'border-left-color: #4caf50; background: rgba(76, 175, 80, 0.05);' : ''}">
+                        <p><i class="fas fa-door-open"></i> <strong>Номер:</strong> ${b.roomNumber}</p>
+                        <p><i class="far fa-calendar-alt"></i> <strong>Период:</strong> ${b.checkIn.replace('T', ' ')} — ${b.checkOut.replace('T', ' ')}</p>
+                        <p><i class="fas fa-info-circle"></i> <strong>Статус:</strong> <span class="${statusClass}">${statusIcon} ${status}</span></p>
+                        <div class="booking-buttons">
+                            ${isConfirmed ? `<button onclick="payBooking(${b.id})"><i class="fas fa-credit-card"></i> ОПЛАТИТЬ СЕЙЧАС</button>` : ''}
+                            <button class="cancel-btn" onclick="cancelBooking(${b.id})"><i class="fas fa-trash-alt"></i> ${isRejected || isPaid ? 'УДАЛИТЬ' : 'ОТМЕНИТЬ'}</button>
+                        </div>
+                        ${isPending ? `<p style="font-size: 0.8rem; color: #888; margin-top: 8px;"><i class="fas fa-clock"></i> Ожидайте подтверждения администратором.</p>` : ''}
+                        ${isConfirmed ? `<p style="font-size: 0.8rem; color: var(--gold); margin-top: 8px;"><i class="fas fa-exclamation-circle"></i> Заявка одобрена! Оплатите её.</p>` : ''}
+                        ${isPaid ? `<p style="font-size: 0.8rem; color: #4caf50; margin-top: 8px;"><i class="fas fa-check"></i> Номер успешно забронирован.</p>` : ''}
+                        ${b.rejectionReason ? `<p style="color:#ffaa66; margin-top:8px; background: rgba(255,170,102,0.1); padding: 8px; border-radius: 8px;"><i class="fas fa-comment-dots"></i> Причина отказа: ${b.rejectionReason}</p>` : ''}
                     </div>
-                    ${b.status === 'REJECTED' ? `<p style="color:#FFB085; margin-top:16px; background: rgba(231,76,60,0.15); padding: 8px 16px; border-radius: 40px;"><b>❌ Причина отказа:</b> ${b.rejectionReason || 'Не указана'}</p>` : ''}
-                    ${b.status === 'PAID' ? `<p style="color:#B9F6CA; margin-top:16px; background: rgba(46,204,113,0.12); padding: 8px 16px; border-radius: 40px;"><b>✅ Номер оплачен и забронирован за вами!</b></p>` : ''}
-                </div>
-            </div>
-        `}).join('');
-        if(bookings.length === 0) document.getElementById('bookings-list').innerHTML = '<div class="card" style="text-align:center; padding: 32px;">✨ У вас пока нет заявок. Оставьте заявку на любой номер ✨</div>';
+                `;
+            }).join('');
+        } catch(e) { list.innerHTML = '<div class="empty-state"><i class="fas fa-database"></i> Ошибка загрузки броней</div>'; }
     }
 
-    async function bookRoom(roomId) {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${API}/bookings/create`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ roomId })
-        });
-        if(res.ok) alert("✨ Заявка отправлена администратору! Ожидайте подтверждения.");
-        else alert("Ошибка при бронировании.");
+    // Оплата (POST /bookings/pay/{id})
+    async function payBooking(id) {
+        try {
+            const res = await fetch(`${API}/bookings/pay/${id}`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.ok) {
+                alert("💎 Оплата прошла успешно!");
+                await checkPendingStatus();
+                if (document.getElementById('bookings').classList.contains('active')) await loadMyBookings();
+                else setButtonsDisabledState(false);
+            } else { alert("Ошибка оплаты"); }
+        } catch(e) { alert("Ошибка соединения"); }
     }
 
-    function logout() {
-        localStorage.removeItem('token');
-        document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-        window.location.href = 'login.html';
+    // Отмена брони (DELETE /bookings/delete/{id})
+    async function cancelBooking(id) {
+        if (!confirm("Вы уверены, что хотите отменить эту заявку?")) return;
+        try {
+            const res = await fetch(`${API}/bookings/delete/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.ok) {
+                alert("Заявка отменена.");
+                await checkPendingStatus();
+                if (document.getElementById('bookings').classList.contains('active')) await loadMyBookings();
+                else setButtonsDisabledState(false);
+            } else {
+                const err = await res.json();
+                alert(err.error || "Не удалось отменить");
+            }
+        } catch(e) { alert("Ошибка соединения"); }
     }
 
-    window.onload = async () => {
-        const token = localStorage.getItem('token');
-        if(!token) {
-            window.location.href = 'login.html';
-            return;
+    // Выход
+    function logout() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
+
+    // Админка
+    async function goToAdmin() {
+        try {
+            const res = await fetch(`${API}/admin/panel`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.ok) window.location.href = '/static/admin_panel.html';
+            else if (res.status === 403) alert("Недостаточно прав");
+            else alert("Ошибка авторизации");
+        } catch(e) { alert("Ошибка связи"); }
+    }
+    async function checkAdmin() {
+        try {
+            const res = await fetch(`${API}/admin/panel`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.ok) document.getElementById('admin-link').style.display = 'flex';
+        } catch(e) {}
+    }
+
+    // Установка дат по умолчанию (завтра +2 дня)
+    function setDefaultDates() {
+        const now = new Date();
+        const tomorrow = new Date(now); tomorrow.setDate(now.getDate() + 1); tomorrow.setHours(14, 0, 0, 0);
+        const departure = new Date(tomorrow); departure.setDate(tomorrow.getDate() + 2); departure.setHours(11, 0, 0, 0);
+        const checkIn = document.getElementById('globalCheckIn');
+        const checkOut = document.getElementById('globalCheckOut');
+        if (!checkIn.value) checkIn.value = tomorrow.toISOString().slice(0, 16);
+        if (!checkOut.value) checkOut.value = departure.toISOString().slice(0, 16);
+    }
+
+    // Модальное окно
+    function openModal(room) {
+        currentModalRoomId = room.id;
+        document.getElementById('modalRoomTitle').innerHTML = `Номер №${room.number} <span style="font-size: 1rem; background: rgba(212,175,55,0.2); padding: 4px 12px; border-radius: 30px; margin-left: 10px;">${room.type || room.category || 'Стандарт'}</span>`;
+        const modalImg = document.getElementById('modalImage');
+        if (room.imageBytes) {
+            modalImg.src = `data:image/jpeg;base64,${room.imageBytes}`;
+        } else {
+            modalImg.src = 'https://placehold.co/600x400/1e2229/d4af37?text=LUX+SUITE';
         }
+        document.getElementById('modalDescription').innerHTML = `
+            ${room.description || 'Элегантный номер с панорамным видом, премиум-класс'}
+            <br><br>
+            <i class="fas fa-tag" style="color: var(--gold);"></i> <strong>Тип номера:</strong> ${room.type || room.category || 'Стандарт'}
+        `;
+        document.getElementById('modalPrice').innerHTML = `${room.price.toLocaleString()} ₽ <span style="font-size:0.9rem;">/ ночь</span>`;
+        const modal = document.getElementById('roomModal');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
 
-        const userData = parseJwt(token);
-        if (userData && (userData.role === 'ADMIN' || userData.role === 'Role.ADMIN')) {
-            const adminBtn = document.getElementById('admin-link');
-            if (adminBtn) adminBtn.style.display = 'inline-block';
-        }
+    function closeModal() {
+        const modal = document.getElementById('roomModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        currentModalRoomId = null;
+    }
 
-        loadRooms();
+    window.onclick = function(event) {
+        const modal = document.getElementById('roomModal');
+        if (event.target === modal) closeModal();
     };
 
-    function goToAdmin() {
-        const token = localStorage.getItem('token');
-        if (token) {
-            document.cookie = `token=${token}; path=/; max-age=3600; SameSite=Lax`;
-            setTimeout(() => {
-                window.location.href = '/admin/panel';
-            }, 50);
-        } else {
-            alert("Сначала авторизуйтесь");
-        }
-    }
+    document.getElementById('modalBookBtn').onclick = function() {
+        if (currentModalRoomId) createBooking(currentModalRoomId);
+        else alert("Ошибка: номер не выбран");
+    };
 
-    async function payBooking(bookingId) {
-        const token = localStorage.getItem('token');
-        if (!confirm("💳 Подтвердить оплату? Номер станет полностью вашим.")) return;
-
-        const res = await fetch(`${API}/bookings/pay/${bookingId}`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (res.ok) {
-            alert("✅ Оплата прошла успешно! Номер закреплён за вами. Наслаждайтесь отдыхом.");
-            loadMyBookings();
-            loadRooms();
-        } else {
-            alert("❌ Ошибка при оплате. Попробуйте позже.");
-        }
-    }
-
-    async function forceDeleteBooking(bookingId) {
-        if (!confirm("⚠️ Отменить бронирование? Если оно уже оплачено — средства не возвращаются.")) return;
-
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${API}/bookings/delete/${bookingId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (res.ok) {
-            alert("Бронирование отменено.");
-            loadMyBookings();
-            loadRooms();
-        } else {
-            alert("Не удалось отменить заявку.");
-        }
-    }
-
-    async function cancelBooking(bookingId) {
-        // запасная функция (не используется напрямую, но оставлена для совместимости)
-        const token = localStorage.getItem('token');
-        if (!confirm("Отменить заявку?")) return;
-        const res = await fetch(`${API}/bookings/cancel/${bookingId}`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-            alert("Заявка отменена.");
-            loadMyBookings();
-            loadRooms();
-        }
-    }
+    setDefaultDates();
+    checkAdmin();
+    checkPendingStatus().then(() => loadRooms());
 </script>
 </body>
 </html>

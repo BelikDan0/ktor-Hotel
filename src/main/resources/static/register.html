@@ -1,91 +1,103 @@
+<!-- register.html — страница регистрации -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Регистрация - Отель</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>LuxHotel | Регистрация</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    :root {
---bg: #0f172a;
---card: #1e293b;
---accent: #fbbf24; /* Золотой акцент */
---text: #f8fafc;
---input: #334155;
-}
-
-body {
-background-color: var(--bg);
-color: var(--text);
-font-family: 'Segoe UI', Roboto, sans-serif;
-display: flex;
-justify-content: center;
-align-items: center;
-height: 100vh;
-margin: 0;
-}
-
-.card {
-background: var(--card);
-padding: 2.5rem;
-border-radius: 1.5rem;
-box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-width: 100%;
-max-width: 400px;
-border: 1px solid rgba(255, 255, 255, 0.1);
-text-align: center;
-}
-
-h2 { margin-bottom: 1.5rem; font-weight: 700; color: var(--accent); letter-spacing: -0.025em; }
-
-input {
-width: 100%;
-padding: 0.75rem 1rem;
-margin-bottom: 1rem;
-background: var(--input);
-border: 1px solid transparent;
-border-radius: 0.75rem;
-color: white;
-transition: all 0.3s ease;
-box-sizing: border-box;
-}
-
-input:focus {
-outline: none;
-border-color: var(--accent);
-box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
-}
-
-button {
-width: 100%;
-padding: 0.75rem;
-background: var(--accent);
-color: var(--bg);
-font-weight: 600;
-border: none;
-border-radius: 0.75rem;
-cursor: pointer;
-transition: transform 0.2s, opacity 0.2s;
-}
-
-button:hover { opacity: 0.9; transform: translateY(-1px); }
-
-.link {
-display: block;
-margin-top: 1.25rem;
-color: #94a3b8;
-text-decoration: none;
-font-size: 0.875rem;
-}
-
-.link:hover { color: var(--accent); }
+    /* те же самые стили, что и для login */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 30%, #0b0f1c, #03050a);
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      position: relative;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" opacity="0.03"><path fill="none" stroke="%23d4af37" stroke-width="0.6" d="M0 400 L1200 400 M600 0 L600 800 M300 200 L900 600 M900 200 L300 600"/><circle cx="200" cy="200" r="100" stroke="%23d4af37" stroke-width="0.5" fill="none"/><circle cx="1000" cy="600" r="150" stroke="%23d4af37" stroke-width="0.5" fill="none"/></svg>');
+      background-repeat: repeat;
+      pointer-events: none;
+    }
+    .auth-card {
+      background: rgba(20, 25, 40, 0.75);
+      backdrop-filter: blur(16px);
+      border-radius: 2rem;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 460px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 175, 55, 0.1);
+      transition: transform 0.3s ease;
+      animation: floatIn 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+    @keyframes floatIn {
+      0% { opacity: 0; transform: translateY(30px) scale(0.96);}
+      100% { opacity: 1; transform: translateY(0) scale(1);}
+    }
+    .logo { text-align: center; margin-bottom: 1.8rem; }
+    .logo i { font-size: 3.2rem; background: linear-gradient(135deg, #d4af37, #f9e07c); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    h2 { font-size: 2rem; font-weight: 600; text-align: center; background: linear-gradient(120deg, #fff, #e2c87a); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 2rem; }
+    .input-group { position: relative; margin-bottom: 1.5rem; }
+    .input-group i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #d4af37; font-size: 1.1rem; opacity: 0.8; }
+    .input-group input { width: 100%; padding: 1rem 1rem 1rem 2.8rem; background: rgba(10, 14, 23, 0.7); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 1.2rem; font-size: 1rem; color: white; font-family: 'Inter', monospace; transition: all 0.25s ease; }
+    .input-group input:focus { outline: none; border-color: #d4af37; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); background: rgba(10, 14, 23, 0.9); }
+    .password-toggle { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #a0a5b5; cursor: pointer; font-size: 1.1rem; padding: 0; width: auto; }
+    button { width: 100%; background: linear-gradient(95deg, #d4af37, #b88d1f); border: none; padding: 1rem; border-radius: 2rem; font-weight: 700; font-size: 1rem; font-family: 'Inter', sans-serif; color: #0a0e17; cursor: pointer; transition: all 0.3s ease; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0.5px; }
+    button i { font-size: 1.1rem; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4); background: linear-gradient(95deg, #e2bf47, #d4af37); }
+    button:active { transform: translateY(1px); }
+    .link { text-align: center; margin-top: 1.8rem; font-size: 0.9rem; }
+    .link a { color: #d4af37; text-decoration: none; font-weight: 500; transition: 0.2s; }
+    .link a:hover { text-decoration: underline; color: #f3d572; }
+    .error-message { background: rgba(220, 53, 69, 0.15); border-left: 3px solid #dc3545; border-radius: 1rem; padding: 0.75rem 1rem; font-size: 0.85rem; color: #ffb3b3; margin-top: 1rem; display: flex; align-items: center; gap: 10px; }
+    .error-message i { font-size: 1rem; color: #dc3545; }
+    @media (max-width: 480px) {
+      .auth-card { padding: 1.8rem 1.2rem; }
+      h2 { font-size: 1.7rem; }
+    }
   </style>
 </head>
 <body>
-<div class="card">
-  <h2>Регистрация</h2>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Пароль">
-  <button onclick="auth('register')">Создать аккаунт</button>
-  <a href="login.html" class="link">Уже есть аккаунт? Войти</a>
+<div class="auth-card">
+  <div class="logo">
+    <i class="fas fa-gem"></i>
+  </div>
+  <h2>Создать аккаунт</h2>
+  <form id="registerForm" onsubmit="return false;">
+    <div class="input-group">
+      <i class="fas fa-envelope"></i>
+      <input type="email" id="email" placeholder="Ваш email" autocomplete="email" required>
+    </div>
+    <div class="input-group">
+      <i class="fas fa-lock"></i>
+      <input type="password" id="password" placeholder="Пароль (минимум 6 символов)" autocomplete="new-password" required>
+      <button type="button" class="password-toggle" onclick="togglePassword('password')">
+        <i class="far fa-eye-slash"></i>
+      </button>
+    </div>
+    <button type="submit" onclick="auth('register')">
+      <i class="fas fa-user-plus"></i> Зарегистрироваться
+    </button>
+  </form>
+  <div class="link">
+    Уже есть аккаунт? <a href="login.html">Войти →</a>
+  </div>
+  <div id="error-container" style="min-height: 60px;"></div>
 </div>
 <script src="auth.js"></script>
 </body>
