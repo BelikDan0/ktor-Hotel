@@ -20,6 +20,7 @@ import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.auth.parseAuthorizationHeader
+import io.ktor.server.plugins.autohead.AutoHeadResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -43,6 +44,7 @@ fun main() {
     }.start(wait = true)
 }
 fun Application.setupBookingCleaner() {
+
     // Запускаем корутину в области видимости приложения
     launch(Dispatchers.IO) {
         while (isActive) {
@@ -81,6 +83,7 @@ fun Application.setupBookingCleaner() {
 }
 
 fun Application.module() {
+    install(AutoHeadResponse)
     install(Authentication) {
         jwt("auth-jwt") {
             realm = "Hotel API"
